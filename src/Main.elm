@@ -77,7 +77,6 @@ type alias LocResult =
     { coords :
         { latitude : Float
         , longitude : Float
-        , heading : Int
         }
     , timestamp : Int
     }
@@ -112,6 +111,12 @@ view model =
             , div []
                 [ text
                     ("longitude: " ++ toString model.position.long)
+                ]
+            , div []
+                [ text "Test"
+                    {--
+                    ++ ("heading: " ++ toString model.position.heading)
+                    --}
                 ]
             ]
         ]

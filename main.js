@@ -8310,13 +8310,8 @@ var _user$project$Main$receiveGeolocation = _elm_lang$core$Native_Platform.incom
 					return A2(
 						_elm_lang$core$Json_Decode$andThen,
 						function (longitude) {
-							return A2(
-								_elm_lang$core$Json_Decode$andThen,
-								function (heading) {
-									return _elm_lang$core$Json_Decode$succeed(
-										{latitude: latitude, longitude: longitude, heading: heading});
-								},
-								A2(_elm_lang$core$Json_Decode$field, 'heading', _elm_lang$core$Json_Decode$int));
+							return _elm_lang$core$Json_Decode$succeed(
+								{latitude: latitude, longitude: longitude});
 						},
 						A2(_elm_lang$core$Json_Decode$field, 'longitude', _elm_lang$core$Json_Decode$float));
 				},
@@ -8423,7 +8418,18 @@ var _user$project$Main$view = function (model) {
 												_elm_lang$core$Basics$toString(model.position.$long))),
 										_1: {ctor: '[]'}
 									}),
-								_1: {ctor: '[]'}
+								_1: {
+									ctor: '::',
+									_0: A2(
+										_elm_lang$html$Html$div,
+										{ctor: '[]'},
+										{
+											ctor: '::',
+											_0: _elm_lang$html$Html$text('Test'),
+											_1: {ctor: '[]'}
+										}),
+									_1: {ctor: '[]'}
+								}
 							}
 						}
 					}
