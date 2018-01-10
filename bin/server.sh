@@ -1,1 +1,5 @@
-python -m SimpleHTTPServer 8000
+if [ -z "$PORT" ]
+then
+	PORT=8080
+fi
+python -m SimpleHTTPServer $PORT

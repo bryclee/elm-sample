@@ -7,6 +7,7 @@ import Html.Attributes exposing (class)
 
 type alias Flags =
     { geolocation : Bool
+    , deviceOrientation : Bool
     }
 
 
@@ -29,15 +30,30 @@ type alias Position =
     }
 
 
+type alias Orientation =
+    { alpha : Float
+    , beta : Float
+    , gamma : Float
+    }
+
+
 type alias Model =
     { position : Position
+    , orientation : Orientation
     , geolocation : Bool
+    , deviceOrientation : Bool
     }
 
 
 init : Flags -> ( Model, Cmd Msg )
-init { geolocation } =
-    ( Model (Position 0 0) geolocation, Cmd.none )
+init { geolocation, deviceOrientation } =
+    ( Model
+        (Position 0 0)
+        (Orientation 0 0 0)
+        geolocation
+        deviceOrientation
+    , Cmd.none
+    )
 
 
 
@@ -47,6 +63,7 @@ init { geolocation } =
 type Msg
     = EnableGeolocation
     | UpdateGeolocation LocResult
+    | UpdateDeviceOrientation Orientation
 
 
 port requestGeolocation : () -> Cmd msg
@@ -58,15 +75,18 @@ update msg model =
         EnableGeolocation ->
             ( model, requestGeolocation () )
 
-        UpdateGeolocation res ->
+        UpdateGeolocation { latitude, longitude } ->
             ( { model
                 | position =
-                    { lat = res.coords.latitude
-                    , long = res.coords.longitude
+                    { lat = latitude
+                    , long = longitude
                     }
               }
             , Cmd.none
             )
+
+        UpdateDeviceOrientation orientation ->
+            ( { model | orientation = orientation }, Cmd.none )
 
 
 
@@ -74,24 +94,36 @@ update msg model =
 
 
 type alias LocResult =
-    { coords :
-        { latitude : Float
-        , longitude : Float
-        }
-    , timestamp : Int
+    { latitude : Float
+    , longitude : Float
     }
 
 
 port receiveGeolocation : (LocResult -> msg) -> Sub msg
 
 
+port receiveDeviceOrientation : (Orientation -> msg) -> Sub msg
+
+
 subscriptions : Model -> Sub Msg
 subscriptions model =
-    receiveGeolocation UpdateGeolocation
+    Sub.batch
+        [ receiveGeolocation UpdateGeolocation
+        , receiveDeviceOrientation UpdateDeviceOrientation
+        ]
 
 
 
 -- View
+
+
+debugInfo : List ( String, String ) -> Html Msg
+debugInfo infos =
+    div []
+        (List.map
+            (\( label, data ) -> div [] [ text (label ++ data) ])
+            infos
+        )
 
 
 view : Model -> Html Msg
@@ -99,24 +131,15 @@ view model =
     div
         [ class "container" ]
         [ div []
-            [ div []
-                [ text
-                    ("Geolocation supported: " ++ (toString model.geolocation))
-                ]
-            , button [ onClick EnableGeolocation ] [ text "Hello World...." ]
-            , div []
-                [ text
-                    ("latitude: " ++ toString model.position.lat)
-                ]
-            , div []
-                [ text
-                    ("longitude: " ++ toString model.position.long)
-                ]
-            , div []
-                [ text "Test"
-                    {--
-                    ++ ("heading: " ++ toString model.position.heading)
-                    --}
+            [ button [ onClick EnableGeolocation ] [ text "Enable geolocation" ]
+            , debugInfo
+                [ ( "Geolocation supported: ", toString (model.geolocation) )
+                , ( "Device Orientation supported: ", toString (model.deviceOrientation) )
+                , ( "Latitude: ", toString (model.position.lat) )
+                , ( "Longitude: ", toString (model.position.long) )
+                , ( "Alpha: ", toString (round model.orientation.alpha) )
+                , ( "Beta: ", toString (round model.orientation.beta) )
+                , ( "Gamma: ", toString (round model.orientation.gamma) )
                 ]
             ]
         ]

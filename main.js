@@ -8260,6 +8260,26 @@ var _elm_lang$html$Html_Events$Options = F2(
 		return {stopPropagation: a, preventDefault: b};
 	});
 
+var _user$project$Main$debugInfo = function (infos) {
+	return A2(
+		_elm_lang$html$Html$div,
+		{ctor: '[]'},
+		A2(
+			_elm_lang$core$List$map,
+			function (_p0) {
+				var _p1 = _p0;
+				return A2(
+					_elm_lang$html$Html$div,
+					{ctor: '[]'},
+					{
+						ctor: '::',
+						_0: _elm_lang$html$Html$text(
+							A2(_elm_lang$core$Basics_ops['++'], _p1._0, _p1._1)),
+						_1: {ctor: '[]'}
+					});
+			},
+			infos));
+};
 var _user$project$Main$requestGeolocation = _elm_lang$core$Native_Platform.outgoingPort(
 	'requestGeolocation',
 	function (v) {
@@ -8267,86 +8287,118 @@ var _user$project$Main$requestGeolocation = _elm_lang$core$Native_Platform.outgo
 	});
 var _user$project$Main$update = F2(
 	function (msg, model) {
-		var _p0 = msg;
-		if (_p0.ctor === 'EnableGeolocation') {
-			return {
-				ctor: '_Tuple2',
-				_0: model,
-				_1: _user$project$Main$requestGeolocation(
-					{ctor: '_Tuple0'})
-			};
-		} else {
-			var _p1 = _p0._0;
-			return {
-				ctor: '_Tuple2',
-				_0: _elm_lang$core$Native_Utils.update(
-					model,
-					{
-						position: {lat: _p1.coords.latitude, $long: _p1.coords.longitude}
-					}),
-				_1: _elm_lang$core$Platform_Cmd$none
-			};
+		var _p2 = msg;
+		switch (_p2.ctor) {
+			case 'EnableGeolocation':
+				return {
+					ctor: '_Tuple2',
+					_0: model,
+					_1: _user$project$Main$requestGeolocation(
+						{ctor: '_Tuple0'})
+				};
+			case 'UpdateGeolocation':
+				return {
+					ctor: '_Tuple2',
+					_0: _elm_lang$core$Native_Utils.update(
+						model,
+						{
+							position: {lat: _p2._0.latitude, $long: _p2._0.longitude}
+						}),
+					_1: _elm_lang$core$Platform_Cmd$none
+				};
+			default:
+				return {
+					ctor: '_Tuple2',
+					_0: _elm_lang$core$Native_Utils.update(
+						model,
+						{orientation: _p2._0}),
+					_1: _elm_lang$core$Platform_Cmd$none
+				};
 		}
 	});
 var _user$project$Main$receiveGeolocation = _elm_lang$core$Native_Platform.incomingPort(
 	'receiveGeolocation',
 	A2(
 		_elm_lang$core$Json_Decode$andThen,
-		function (coords) {
+		function (latitude) {
 			return A2(
 				_elm_lang$core$Json_Decode$andThen,
-				function (timestamp) {
+				function (longitude) {
 					return _elm_lang$core$Json_Decode$succeed(
-						{coords: coords, timestamp: timestamp});
+						{latitude: latitude, longitude: longitude});
 				},
-				A2(_elm_lang$core$Json_Decode$field, 'timestamp', _elm_lang$core$Json_Decode$int));
+				A2(_elm_lang$core$Json_Decode$field, 'longitude', _elm_lang$core$Json_Decode$float));
 		},
-		A2(
-			_elm_lang$core$Json_Decode$field,
-			'coords',
-			A2(
+		A2(_elm_lang$core$Json_Decode$field, 'latitude', _elm_lang$core$Json_Decode$float)));
+var _user$project$Main$receiveDeviceOrientation = _elm_lang$core$Native_Platform.incomingPort(
+	'receiveDeviceOrientation',
+	A2(
+		_elm_lang$core$Json_Decode$andThen,
+		function (alpha) {
+			return A2(
 				_elm_lang$core$Json_Decode$andThen,
-				function (latitude) {
+				function (beta) {
 					return A2(
 						_elm_lang$core$Json_Decode$andThen,
-						function (longitude) {
+						function (gamma) {
 							return _elm_lang$core$Json_Decode$succeed(
-								{latitude: latitude, longitude: longitude});
+								{alpha: alpha, beta: beta, gamma: gamma});
 						},
-						A2(_elm_lang$core$Json_Decode$field, 'longitude', _elm_lang$core$Json_Decode$float));
+						A2(_elm_lang$core$Json_Decode$field, 'gamma', _elm_lang$core$Json_Decode$float));
 				},
-				A2(_elm_lang$core$Json_Decode$field, 'latitude', _elm_lang$core$Json_Decode$float)))));
-var _user$project$Main$Flags = function (a) {
-	return {geolocation: a};
-};
+				A2(_elm_lang$core$Json_Decode$field, 'beta', _elm_lang$core$Json_Decode$float));
+		},
+		A2(_elm_lang$core$Json_Decode$field, 'alpha', _elm_lang$core$Json_Decode$float)));
+var _user$project$Main$Flags = F2(
+	function (a, b) {
+		return {geolocation: a, deviceOrientation: b};
+	});
 var _user$project$Main$Position = F2(
 	function (a, b) {
 		return {lat: a, $long: b};
 	});
-var _user$project$Main$Model = F2(
-	function (a, b) {
-		return {position: a, geolocation: b};
+var _user$project$Main$Orientation = F3(
+	function (a, b, c) {
+		return {alpha: a, beta: b, gamma: c};
 	});
-var _user$project$Main$init = function (_p2) {
-	var _p3 = _p2;
+var _user$project$Main$Model = F4(
+	function (a, b, c, d) {
+		return {position: a, orientation: b, geolocation: c, deviceOrientation: d};
+	});
+var _user$project$Main$init = function (_p3) {
+	var _p4 = _p3;
 	return {
 		ctor: '_Tuple2',
-		_0: A2(
+		_0: A4(
 			_user$project$Main$Model,
 			A2(_user$project$Main$Position, 0, 0),
-			_p3.geolocation),
+			A3(_user$project$Main$Orientation, 0, 0, 0),
+			_p4.geolocation,
+			_p4.deviceOrientation),
 		_1: _elm_lang$core$Platform_Cmd$none
 	};
 };
 var _user$project$Main$LocResult = F2(
 	function (a, b) {
-		return {coords: a, timestamp: b};
+		return {latitude: a, longitude: b};
 	});
+var _user$project$Main$UpdateDeviceOrientation = function (a) {
+	return {ctor: 'UpdateDeviceOrientation', _0: a};
+};
 var _user$project$Main$UpdateGeolocation = function (a) {
 	return {ctor: 'UpdateGeolocation', _0: a};
 };
 var _user$project$Main$subscriptions = function (model) {
-	return _user$project$Main$receiveGeolocation(_user$project$Main$UpdateGeolocation);
+	return _elm_lang$core$Platform_Sub$batch(
+		{
+			ctor: '::',
+			_0: _user$project$Main$receiveGeolocation(_user$project$Main$UpdateGeolocation),
+			_1: {
+				ctor: '::',
+				_0: _user$project$Main$receiveDeviceOrientation(_user$project$Main$UpdateDeviceOrientation),
+				_1: {ctor: '[]'}
+			}
+		});
 };
 var _user$project$Main$EnableGeolocation = {ctor: 'EnableGeolocation'};
 var _user$project$Main$view = function (model) {
@@ -8365,73 +8417,81 @@ var _user$project$Main$view = function (model) {
 				{
 					ctor: '::',
 					_0: A2(
-						_elm_lang$html$Html$div,
-						{ctor: '[]'},
+						_elm_lang$html$Html$button,
 						{
 							ctor: '::',
-							_0: _elm_lang$html$Html$text(
-								A2(
-									_elm_lang$core$Basics_ops['++'],
-									'Geolocation supported: ',
-									_elm_lang$core$Basics$toString(model.geolocation))),
+							_0: _elm_lang$html$Html_Events$onClick(_user$project$Main$EnableGeolocation),
+							_1: {ctor: '[]'}
+						},
+						{
+							ctor: '::',
+							_0: _elm_lang$html$Html$text('Enable geolocation'),
 							_1: {ctor: '[]'}
 						}),
 					_1: {
 						ctor: '::',
-						_0: A2(
-							_elm_lang$html$Html$button,
+						_0: _user$project$Main$debugInfo(
 							{
 								ctor: '::',
-								_0: _elm_lang$html$Html_Events$onClick(_user$project$Main$EnableGeolocation),
-								_1: {ctor: '[]'}
-							},
-							{
-								ctor: '::',
-								_0: _elm_lang$html$Html$text('Hello World....'),
-								_1: {ctor: '[]'}
-							}),
-						_1: {
-							ctor: '::',
-							_0: A2(
-								_elm_lang$html$Html$div,
-								{ctor: '[]'},
-								{
-									ctor: '::',
-									_0: _elm_lang$html$Html$text(
-										A2(
-											_elm_lang$core$Basics_ops['++'],
-											'latitude: ',
-											_elm_lang$core$Basics$toString(model.position.lat))),
-									_1: {ctor: '[]'}
-								}),
-							_1: {
-								ctor: '::',
-								_0: A2(
-									_elm_lang$html$Html$div,
-									{ctor: '[]'},
-									{
-										ctor: '::',
-										_0: _elm_lang$html$Html$text(
-											A2(
-												_elm_lang$core$Basics_ops['++'],
-												'longitude: ',
-												_elm_lang$core$Basics$toString(model.position.$long))),
-										_1: {ctor: '[]'}
-									}),
+								_0: {
+									ctor: '_Tuple2',
+									_0: 'Geolocation supported: ',
+									_1: _elm_lang$core$Basics$toString(model.geolocation)
+								},
 								_1: {
 									ctor: '::',
-									_0: A2(
-										_elm_lang$html$Html$div,
-										{ctor: '[]'},
-										{
+									_0: {
+										ctor: '_Tuple2',
+										_0: 'Device Orientation supported: ',
+										_1: _elm_lang$core$Basics$toString(model.deviceOrientation)
+									},
+									_1: {
+										ctor: '::',
+										_0: {
+											ctor: '_Tuple2',
+											_0: 'Latitude: ',
+											_1: _elm_lang$core$Basics$toString(model.position.lat)
+										},
+										_1: {
 											ctor: '::',
-											_0: _elm_lang$html$Html$text('Test'),
-											_1: {ctor: '[]'}
-										}),
-									_1: {ctor: '[]'}
+											_0: {
+												ctor: '_Tuple2',
+												_0: 'Longitude: ',
+												_1: _elm_lang$core$Basics$toString(model.position.$long)
+											},
+											_1: {
+												ctor: '::',
+												_0: {
+													ctor: '_Tuple2',
+													_0: 'Alpha: ',
+													_1: _elm_lang$core$Basics$toString(
+														_elm_lang$core$Basics$round(model.orientation.alpha))
+												},
+												_1: {
+													ctor: '::',
+													_0: {
+														ctor: '_Tuple2',
+														_0: 'Beta: ',
+														_1: _elm_lang$core$Basics$toString(
+															_elm_lang$core$Basics$round(model.orientation.beta))
+													},
+													_1: {
+														ctor: '::',
+														_0: {
+															ctor: '_Tuple2',
+															_0: 'Gamma: ',
+															_1: _elm_lang$core$Basics$toString(
+																_elm_lang$core$Basics$round(model.orientation.gamma))
+														},
+														_1: {ctor: '[]'}
+													}
+												}
+											}
+										}
+									}
 								}
-							}
-						}
+							}),
+						_1: {ctor: '[]'}
 					}
 				}),
 			_1: {ctor: '[]'}
@@ -8441,11 +8501,16 @@ var _user$project$Main$main = _elm_lang$html$Html$programWithFlags(
 	{init: _user$project$Main$init, view: _user$project$Main$view, subscriptions: _user$project$Main$subscriptions, update: _user$project$Main$update})(
 	A2(
 		_elm_lang$core$Json_Decode$andThen,
-		function (geolocation) {
-			return _elm_lang$core$Json_Decode$succeed(
-				{geolocation: geolocation});
+		function (deviceOrientation) {
+			return A2(
+				_elm_lang$core$Json_Decode$andThen,
+				function (geolocation) {
+					return _elm_lang$core$Json_Decode$succeed(
+						{deviceOrientation: deviceOrientation, geolocation: geolocation});
+				},
+				A2(_elm_lang$core$Json_Decode$field, 'geolocation', _elm_lang$core$Json_Decode$bool));
 		},
-		A2(_elm_lang$core$Json_Decode$field, 'geolocation', _elm_lang$core$Json_Decode$bool)));
+		A2(_elm_lang$core$Json_Decode$field, 'deviceOrientation', _elm_lang$core$Json_Decode$bool)));
 
 var Elm = {};
 Elm['Main'] = Elm['Main'] || {};
