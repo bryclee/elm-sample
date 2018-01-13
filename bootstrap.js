@@ -1,32 +1,58 @@
 var node = document.getElementById('main');
 var geoAllowed = 'geolocation' in window.navigator;
-var deviceOrientationSupported = 'DeviceOrientationEvent' in window;
-var app = Elm.Main.embed(node, {
-  geolocation: geoAllowed,
-  deviceOrientation: deviceOrientationSupported
-});
+var geoPermission = false;
+var deviceOrientationSupported = 'ondeviceorientation' in window;
 
-app.ports.requestGeolocation.subscribe(function() {
-  console.log('Received request for geolocation!');
-  if (!geoAllowed) return;
+if (geoAllowed && 'permissions' in window.navigator) {
+  window.navigator.permissions.query({name: 'geolocation'}).then(function(permission) {
+    geoPermission = permission.state;
 
-  window.navigator.geolocation.getCurrentPosition(function(position) {
-    console.log('Sending data for geolocation!', position);
-    app.ports.receiveGeolocation.send({
+    initApp();
+  });
+} else {
+  initApp();
+}
+
+
+function initApp() {
+  var app = Elm.Main.embed(node, {
+    geolocation: geoAllowed,
+    geolocationGranted: geoPermission,
+    deviceOrientation: deviceOrientationSupported
+  });
+
+  app.ports.requestGeolocation.subscribe(function() {
+    if (!geoAllowed) return;
+
+    window.navigator.geolocation.getCurrentPosition(function(position) {
+      app.ports.receiveGeolocation.send({
         latitude: position.coords.latitude || 0,
-        longitude: position.coords.longitude || 0
+        longitude: position.coords.longitude || 0,
+        heading: 'heading' in position.coords ? position.coords.heading : null
+      });
     });
   });
-});
 
-if (deviceOrientationSupported) {
+  if (deviceOrientationSupported) {
+    var deviceOrientationEvent = 'ondeviceorientationabsolute' in window ?
+      'deviceorientationabsolute' :
+      'deviceorientation';
+
     function handleDeviceOrientation(event) {
-        console.log('Sending data for device orientation');
-        app.ports.receiveDeviceOrientation.send({
-            alpha: event.alpha || 0,
-            beta: event.beta || 0,
-            gamma: event.gamma || 0
-        });
+      var absolute = event.absolute || false;
+      var hasHeading = 'webkitCompassHeading' in event;
+      var heading =
+        absolute ? event.alpha :
+        hasHeading ? event.webkitCompassHeading :
+        0;
+
+      app.ports.receiveDeviceOrientation.send({
+        heading: heading || 0,
+        absolute: absolute || hasHeading,
+        alpha: event.alpha
+      });
     }
-    window.addEventListener('deviceorientation', handleDeviceOrientation);
+
+    window.addEventListener(deviceOrientationEvent, handleDeviceOrientation);
+  }
 }
