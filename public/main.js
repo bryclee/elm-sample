@@ -14185,6 +14185,25 @@ var _rtfeldman$elm_css$Html_Styled_Events$Options = F2(
 		return {stopPropagation: a, preventDefault: b};
 	});
 
+var _user$project$SolarPosition$getJulianDay = function (date) {
+	return 1;
+};
+var _user$project$SolarPosition$Date = F3(
+	function (a, b, c) {
+		return {year: a, month: b, day: c};
+	});
+var _user$project$SolarPosition$Position = F2(
+	function (a, b) {
+		return {longitude: a, latitude: b};
+	});
+var _user$project$SolarPosition$SolarPosition = F2(
+	function (a, b) {
+		return {azimuth: a, elevation: b};
+	});
+var _user$project$SolarPosition$calc = function (position) {
+	return A2(_user$project$SolarPosition$SolarPosition, 0, 0);
+};
+
 var _user$project$Main$fontBase = _rtfeldman$elm_css$Css$batch(
 	{
 		ctor: '::',
@@ -14260,25 +14279,49 @@ var _user$project$Main$compass = function (orientation) {
 						{
 							ctor: '::',
 							_0: _rtfeldman$elm_css$Css$width(
-								_rtfeldman$elm_css$Css$px(30)),
+								_rtfeldman$elm_css$Css$px(50)),
 							_1: {
 								ctor: '::',
 								_0: _rtfeldman$elm_css$Css$height(
-									_rtfeldman$elm_css$Css$px(30)),
+									_rtfeldman$elm_css$Css$px(50)),
 								_1: {
 									ctor: '::',
-									_0: _rtfeldman$elm_css$Css$backgroundColor(_user$project$Main$theme.primary),
+									_0: _rtfeldman$elm_css$Css$lineHeight(
+										_rtfeldman$elm_css$Css$px(50)),
 									_1: {
 										ctor: '::',
-										_0: A2(_rtfeldman$elm_css$Css$margin2, _rtfeldman$elm_css$Css$zero, _rtfeldman$elm_css$Css$auto),
-										_1: {ctor: '[]'}
+										_0: _rtfeldman$elm_css$Css$borderRadius(
+											_rtfeldman$elm_css$Css$pct(50)),
+										_1: {
+											ctor: '::',
+											_0: _rtfeldman$elm_css$Css$backgroundColor(_user$project$Main$theme.primary),
+											_1: {
+												ctor: '::',
+												_0: A2(_rtfeldman$elm_css$Css$margin2, _rtfeldman$elm_css$Css$zero, _rtfeldman$elm_css$Css$auto),
+												_1: {
+													ctor: '::',
+													_0: _rtfeldman$elm_css$Css$fontWeight(
+														_rtfeldman$elm_css$Css$int(800)),
+													_1: {
+														ctor: '::',
+														_0: _rtfeldman$elm_css$Css$color(
+															_rtfeldman$elm_css$Css$hex('2b4c48')),
+														_1: {ctor: '[]'}
+													}
+												}
+											}
+										}
 									}
 								}
 							}
 						}),
 					_1: {ctor: '[]'}
 				},
-				{ctor: '[]'}),
+				{
+					ctor: '::',
+					_0: _rtfeldman$elm_css$Html_Styled$text('N'),
+					_1: {ctor: '[]'}
+				}),
 			_1: {ctor: '[]'}
 		});
 };
@@ -14304,6 +14347,11 @@ var _user$project$Main$debugInfo = function (infos) {
 };
 var _user$project$Main$requestGeolocation = _elm_lang$core$Native_Platform.outgoingPort(
 	'requestGeolocation',
+	function (v) {
+		return null;
+	});
+var _user$project$Main$requestDate = _elm_lang$core$Native_Platform.outgoingPort(
+	'requestDate',
 	function (v) {
 		return null;
 	});
@@ -14349,17 +14397,56 @@ var _user$project$Main$receiveDeviceOrientation = _elm_lang$core$Native_Platform
 					return A2(
 						_elm_lang$core$Json_Decode$andThen,
 						function (alpha) {
-							return _elm_lang$core$Json_Decode$succeed(
-								{heading: heading, absolute: absolute, alpha: alpha});
+							return A2(
+								_elm_lang$core$Json_Decode$andThen,
+								function (browserAbsolute) {
+									return A2(
+										_elm_lang$core$Json_Decode$andThen,
+										function (hasHeading) {
+											return _elm_lang$core$Json_Decode$succeed(
+												{heading: heading, absolute: absolute, alpha: alpha, browserAbsolute: browserAbsolute, hasHeading: hasHeading});
+										},
+										A2(_elm_lang$core$Json_Decode$field, 'hasHeading', _elm_lang$core$Json_Decode$bool));
+								},
+								A2(_elm_lang$core$Json_Decode$field, 'browserAbsolute', _elm_lang$core$Json_Decode$bool));
 						},
 						A2(_elm_lang$core$Json_Decode$field, 'alpha', _elm_lang$core$Json_Decode$float));
 				},
 				A2(_elm_lang$core$Json_Decode$field, 'absolute', _elm_lang$core$Json_Decode$bool));
 		},
 		A2(_elm_lang$core$Json_Decode$field, 'heading', _elm_lang$core$Json_Decode$float)));
-var _user$project$Main$Flags = F2(
-	function (a, b) {
-		return {geolocation: a, deviceOrientation: b};
+var _user$project$Main$receiveDate = _elm_lang$core$Native_Platform.incomingPort(
+	'receiveDate',
+	A2(
+		_elm_lang$core$Json_Decode$andThen,
+		function (year) {
+			return A2(
+				_elm_lang$core$Json_Decode$andThen,
+				function (month) {
+					return A2(
+						_elm_lang$core$Json_Decode$andThen,
+						function (day) {
+							return A2(
+								_elm_lang$core$Json_Decode$andThen,
+								function (time) {
+									return A2(
+										_elm_lang$core$Json_Decode$andThen,
+										function (timezoneOffset) {
+											return _elm_lang$core$Json_Decode$succeed(
+												{year: year, month: month, day: day, time: time, timezoneOffset: timezoneOffset});
+										},
+										A2(_elm_lang$core$Json_Decode$field, 'timezoneOffset', _elm_lang$core$Json_Decode$int));
+								},
+								A2(_elm_lang$core$Json_Decode$field, 'time', _elm_lang$core$Json_Decode$float));
+						},
+						A2(_elm_lang$core$Json_Decode$field, 'day', _elm_lang$core$Json_Decode$int));
+				},
+				A2(_elm_lang$core$Json_Decode$field, 'month', _elm_lang$core$Json_Decode$int));
+		},
+		A2(_elm_lang$core$Json_Decode$field, 'year', _elm_lang$core$Json_Decode$int)));
+var _user$project$Main$Flags = F3(
+	function (a, b, c) {
+		return {geolocation: a, geolocationPermission: b, deviceOrientation: c};
 	});
 var _user$project$Main$Position = F3(
 	function (a, b, c) {
@@ -14394,7 +14481,7 @@ var _user$project$Main$update = F2(
 						{position: newPosition, reference: newRef}),
 					_1: _elm_lang$core$Platform_Cmd$none
 				};
-			default:
+			case 'UpdateDeviceOrientation':
 				var _p5 = _p2._0;
 				var newHeading = _p5.absolute ? _p5.heading : (_p5.alpha - model.reference);
 				var newOrientation = _elm_lang$core$Native_Utils.update(
@@ -14407,34 +14494,66 @@ var _user$project$Main$update = F2(
 						{orientation: newOrientation}),
 					_1: _elm_lang$core$Platform_Cmd$none
 				};
+			default:
+				return {
+					ctor: '_Tuple2',
+					_0: _elm_lang$core$Native_Utils.update(
+						model,
+						{date: _p2._0}),
+					_1: _elm_lang$core$Platform_Cmd$none
+				};
 		}
 	});
-var _user$project$Main$Orientation = F3(
-	function (a, b, c) {
-		return {heading: a, absolute: b, alpha: c};
-	});
-var _user$project$Main$Model = F5(
+var _user$project$Main$Orientation = F5(
 	function (a, b, c, d, e) {
-		return {position: a, orientation: b, reference: c, geolocation: d, deviceOrientation: e};
+		return {heading: a, absolute: b, alpha: c, browserAbsolute: d, hasHeading: e};
 	});
-var _user$project$Main$init = function (_p6) {
-	var _p7 = _p6;
-	return {
-		ctor: '_Tuple2',
-		_0: A5(
-			_user$project$Main$Model,
-			A3(_user$project$Main$Position, 0, 0, _elm_lang$core$Maybe$Nothing),
-			A3(_user$project$Main$Orientation, 0, false, 0),
-			0,
-			_p7.geolocation,
-			_p7.deviceOrientation),
-		_1: _elm_lang$core$Platform_Cmd$none
-	};
-};
+var _user$project$Main$Date = F5(
+	function (a, b, c, d, e) {
+		return {year: a, month: b, day: c, time: d, timezoneOffset: e};
+	});
+var _user$project$Main$Model = F7(
+	function (a, b, c, d, e, f, g) {
+		return {position: a, orientation: b, reference: c, geolocation: d, geolocationPermission: e, deviceOrientation: f, date: g};
+	});
 var _user$project$Main$LocResult = F3(
 	function (a, b, c) {
 		return {latitude: a, longitude: b, heading: c};
 	});
+var _user$project$Main$Denied = {ctor: 'Denied'};
+var _user$project$Main$Prompt = {ctor: 'Prompt'};
+var _user$project$Main$Granted = {ctor: 'Granted'};
+var _user$project$Main$init = function (_p6) {
+	var _p7 = _p6;
+	var permission = function () {
+		var _p8 = _p7.geolocationPermission;
+		switch (_p8) {
+			case 'granted':
+				return _user$project$Main$Granted;
+			case 'denied':
+				return _user$project$Main$Denied;
+			default:
+				return _user$project$Main$Prompt;
+		}
+	}();
+	return {
+		ctor: '_Tuple2',
+		_0: A7(
+			_user$project$Main$Model,
+			A3(_user$project$Main$Position, 0, 0, _elm_lang$core$Maybe$Nothing),
+			A5(_user$project$Main$Orientation, 0, false, 0, false, false),
+			0,
+			_p7.geolocation,
+			permission,
+			_p7.deviceOrientation,
+			A5(_user$project$Main$Date, 0, 0, 0, 0, 0)),
+		_1: _user$project$Main$requestDate(
+			{ctor: '_Tuple0'})
+	};
+};
+var _user$project$Main$UpdateDate = function (a) {
+	return {ctor: 'UpdateDate', _0: a};
+};
 var _user$project$Main$UpdateDeviceOrientation = function (a) {
 	return {ctor: 'UpdateDeviceOrientation', _0: a};
 };
@@ -14449,7 +14568,11 @@ var _user$project$Main$subscriptions = function (model) {
 			_1: {
 				ctor: '::',
 				_0: _user$project$Main$receiveDeviceOrientation(_user$project$Main$UpdateDeviceOrientation),
-				_1: {ctor: '[]'}
+				_1: {
+					ctor: '::',
+					_0: _user$project$Main$receiveDate(_user$project$Main$UpdateDate),
+					_1: {ctor: '[]'}
+				}
 			}
 		});
 };
@@ -14520,48 +14643,92 @@ var _user$project$Main$view = function (model) {
 										ctor: '::',
 										_0: {
 											ctor: '_Tuple2',
-											_0: 'Latitude: ',
-											_1: _elm_lang$core$Basics$toString(model.position.lat)
+											_0: 'Geolocation permission: ',
+											_1: _elm_lang$core$Basics$toString(model.geolocationPermission)
 										},
 										_1: {
 											ctor: '::',
 											_0: {
 												ctor: '_Tuple2',
-												_0: 'Longitude: ',
-												_1: _elm_lang$core$Basics$toString(model.position.$long)
+												_0: 'Latitude: ',
+												_1: _elm_lang$core$Basics$toString(model.position.lat)
 											},
 											_1: {
 												ctor: '::',
 												_0: {
 													ctor: '_Tuple2',
-													_0: 'Heading: ',
-													_1: _elm_lang$core$Basics$toString(
-														_elm_lang$core$Basics$round(model.orientation.heading))
+													_0: 'Longitude: ',
+													_1: _elm_lang$core$Basics$toString(model.position.$long)
 												},
 												_1: {
 													ctor: '::',
 													_0: {
 														ctor: '_Tuple2',
-														_0: 'Absolute: ',
-														_1: _elm_lang$core$Basics$toString(model.orientation.absolute)
+														_0: 'Heading: ',
+														_1: _elm_lang$core$Basics$toString(
+															_elm_lang$core$Basics$round(model.orientation.heading))
 													},
 													_1: {
 														ctor: '::',
 														_0: {
 															ctor: '_Tuple2',
-															_0: 'Reference: ',
-															_1: _elm_lang$core$Basics$toString(
-																_elm_lang$core$Basics$round(model.reference))
+															_0: 'Absolute: ',
+															_1: _elm_lang$core$Basics$toString(model.orientation.absolute)
 														},
 														_1: {
 															ctor: '::',
 															_0: {
 																ctor: '_Tuple2',
-																_0: 'Alpha: ',
+																_0: 'Reference: ',
 																_1: _elm_lang$core$Basics$toString(
-																	_elm_lang$core$Basics$round(model.orientation.alpha))
+																	_elm_lang$core$Basics$round(model.reference))
 															},
-															_1: {ctor: '[]'}
+															_1: {
+																ctor: '::',
+																_0: {
+																	ctor: '_Tuple2',
+																	_0: 'Alpha: ',
+																	_1: _elm_lang$core$Basics$toString(
+																		_elm_lang$core$Basics$round(model.orientation.alpha))
+																},
+																_1: {
+																	ctor: '::',
+																	_0: {
+																		ctor: '_Tuple2',
+																		_0: 'Browser Abs: ',
+																		_1: _elm_lang$core$Basics$toString(model.orientation.browserAbsolute)
+																	},
+																	_1: {
+																		ctor: '::',
+																		_0: {
+																			ctor: '_Tuple2',
+																			_0: 'Browser Heading: ',
+																			_1: _elm_lang$core$Basics$toString(model.orientation.hasHeading)
+																		},
+																		_1: {
+																			ctor: '::',
+																			_0: {
+																				ctor: '_Tuple2',
+																				_0: 'Date: ',
+																				_1: A2(
+																					_elm_lang$core$Basics_ops['++'],
+																					_elm_lang$core$Basics$toString(model.date.day),
+																					A2(
+																						_elm_lang$core$Basics_ops['++'],
+																						_elm_lang$core$Basics$toString(model.date.month),
+																						A2(
+																							_elm_lang$core$Basics_ops['++'],
+																							_elm_lang$core$Basics$toString(model.date.year),
+																							A2(
+																								_elm_lang$core$Basics_ops['++'],
+																								'-',
+																								_elm_lang$core$Basics$toString(model.date.timezoneOffset)))))
+																			},
+																			_1: {ctor: '[]'}
+																		}
+																	}
+																}
+															}
 														}
 													}
 												}
@@ -14583,9 +14750,9 @@ var _user$project$Main$view = function (model) {
 var _user$project$Main$main = _elm_lang$html$Html$programWithFlags(
 	{
 		init: _user$project$Main$init,
-		view: function (_p8) {
+		view: function (_p9) {
 			return _rtfeldman$elm_css$Html_Styled$toUnstyled(
-				_user$project$Main$view(_p8));
+				_user$project$Main$view(_p9));
 		},
 		subscriptions: _user$project$Main$subscriptions,
 		update: _user$project$Main$update
@@ -14596,8 +14763,13 @@ var _user$project$Main$main = _elm_lang$html$Html$programWithFlags(
 			return A2(
 				_elm_lang$core$Json_Decode$andThen,
 				function (geolocation) {
-					return _elm_lang$core$Json_Decode$succeed(
-						{deviceOrientation: deviceOrientation, geolocation: geolocation});
+					return A2(
+						_elm_lang$core$Json_Decode$andThen,
+						function (geolocationPermission) {
+							return _elm_lang$core$Json_Decode$succeed(
+								{deviceOrientation: deviceOrientation, geolocation: geolocation, geolocationPermission: geolocationPermission});
+						},
+						A2(_elm_lang$core$Json_Decode$field, 'geolocationPermission', _elm_lang$core$Json_Decode$string));
 				},
 				A2(_elm_lang$core$Json_Decode$field, 'geolocation', _elm_lang$core$Json_Decode$bool));
 		},
